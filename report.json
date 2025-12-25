@@ -1,0 +1,74 @@
+{
+  "issues": [
+    {
+      "id": 1,
+      "package": "numpy",
+      "original_version": "1.24.0",
+      "updated_version": "2.4.0",
+      "reason": "Updated for compatibility with modern Python (3.14) and to pull in important bug/security fixes."
+    },
+    {
+      "id": 2,
+      "package": "pandas",
+      "original_version": "1.5.0",
+      "updated_version": "2.3.3",
+      "reason": "Major improvements and compatibility with newer numpy; old 1.5.0 is dated and misses fixes."
+    },
+    {
+      "id": 3,
+      "package": "matplotlib",
+      "original_version": "3.5.0",
+      "updated_version": "3.10.8",
+      "reason": "Older release may lack bug fixes; upgraded for compatibility with current plotting/backends."
+    },
+    {
+      "id": 4,
+      "package": "requests",
+      "original_version": "2.25.0",
+      "updated_version": "2.32.5",
+      "reason": "Multiple security fixes and HTTP/2/modern TLS improvements in newer releases."
+    },
+    {
+      "id": 5,
+      "package": "pyyaml",
+      "original_version": "5.3.1",
+      "updated_version": "6.0.3",
+      "reason": "PyYAML&lt;6 has known safety issues; 6.x is the maintained secure series."
+    },
+    {
+      "id": 6,
+      "package": "scipy",
+      "original_version": "1.9.0",
+      "updated_version": "1.16.3",
+      "reason": "Large number of numerical and security/packaging fixes; ensures ABI compatibility with chosen numpy."
+    },
+    {
+      "id": 7,
+      "package": "regex",
+      "original_version": "2021.4.4",
+      "updated_version": "2025.11.3",
+      "reason": "Old release; newer versions include performance and correctness fixes."
+    },
+    {
+      "id": 8,
+      "package": "tqdm",
+      "original_version": "4.32.0",
+      "updated_version": "4.67.1",
+      "reason": "Many bugfixes and improved compatibility with modern stdlib."
+    },
+    {
+      "id": 9,
+      "package": "lxml",
+      "original_version": "4.6.1",
+      "updated_version": "6.0.2",
+      "reason": "Security and stability improvements in newer maintained releases."
+    },
+    {
+      "id": 10,
+      "package": "typing_extensions",
+      "original_version": "3.7.4",
+      "updated_version": "4.15.0",
+      "reason": "Old backport incompatible with modern typing features; updated for Python 3.14 compatibility."
+    }
+  ]
+}
