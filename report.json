@@ -1,0 +1,15 @@
+{
+  "issues": [
+    { "id": 1, "package": "numpy", "original_version": "1.24.0", "updated_version": "2.4.0", "reason": "Security, performance and Python 3.14 compatibility." },
+    { "id": 2, "package": "pandas", "original_version": "1.5.0", "updated_version": "2.3.3", "reason": "Compatibility with modern numpy and bug/security fixes." },
+    { "id": 3, "package": "matplotlib", "original_version": "3.5.0", "updated_version": "3.10.8", "reason": "Supports numpy 2.x and Python 3.14 (prebuilt wheels available)." },
+    { "id": 4, "package": "requests", "original_version": "2.25.0", "updated_version": "2.31.0", "reason": "Addresses known security issues in older releases." },
+    { "id": 5, "package": "pyyaml", "original_version": "5.3.1", "updated_version": "6.0.1", "reason": "Security fixes and prebuilt wheels for Windows." },
+    { "id": 6, "package": "scipy", "original_version": "1.9.0", "updated_version": "", "reason": "Removed — not used in codebase and problematic to install for Python 3.14 on Windows." },
+    { "id": 7, "package": "regex", "original_version": "2021.4.4", "updated_version": "2025.11.3", "reason": "Newer release with prebuilt wheels and security fixes." },
+    { "id": 8, "package": "tqdm", "original_version": "4.32.0", "updated_version": "4.66.1", "reason": "Modern, stable release with performance fixes." },
+    { "id": 9, "package": "lxml", "original_version": "4.6.1", "updated_version": "6.0.2", "reason": "Prebuilt wheels for Python 3.14 and security fixes." },
+    { "id": 10, "package": "typing_extensions", "original_version": "3.7.4", "updated_version": "4.9.0", "reason": "New typing features and Python 3.14 compatibility." }
+  ]
+}
+

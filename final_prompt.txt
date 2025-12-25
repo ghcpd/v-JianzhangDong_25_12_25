@@ -1,0 +1,79 @@
+You are a dependency maintenance engineer. Your task is to analyze the project's dependencies and produce a corrected, secure, fully‑reproducible environment.
+
+Requirements (must follow exactly):
+
+1) Backup
+- Create a byte-for-byte backup of the original `requirements.txt` named `requirements_backup.txt` before making any edits.
+
+2) Detect environment
+- Detect the active Python and pip versions and choose package pins compatible with that Python version.
+
+3) Update `requirements.txt`
+- Pin every dependency to a stable, secure version (no unpinned packages remain).
+- Remove packages that are unused by the codebase or that cannot reasonably be installed for the detected Python version.
+- Ensure there are no deprecated, vulnerable, or insecure versions.
+- Make sure all pinned versions are mutually compatible.
+
+4) report.json
+- Produce `report.json` listing each issue/change as an array of objects with keys: id, package, original_version, updated_version, reason.
+- If a package in the original file had no pinned version, `original_version` must be an empty string.
+- If a package was removed, set `updated_version` to an empty string and explain why.
+- Follow this example structure exactly:
+  {
+    "issues": [
+      {"id": 1, "package": "requests", "original_version": "2.22.0", "updated_version": "2.31.0", "reason": "Older version contains known security vulnerabilities."},
+      {"id": 2, "package": "flask", "original_version": "", "updated_version": "2.3.3", "reason": "Version not specified; must be pinned."}
+    ]
+  }
+
+5) Environment replication files (create or update)
+- `Dockerfile` and `setup.sh` (for Linux/macOS)
+- `run_test.sh` (Linux/macOS) and `run_test.bat` (Windows)
+- `.gitignore` must exclude `.venv/` and `logs/`.
+
+6) Virtual environment
+- Create a fresh `.venv/` directory (delete existing `.venv/` if present) and install dependencies from the modified `requirements.txt` into it.
+- Do not reuse any existing venv.
+
+7) auto_test.py
+- Create `auto_test.py` that:
+  - Uses the Python interpreter inside `.venv/` to run all test scripts under `tests/`.
+  - Writes test output to `logs/test_run.log` (create `logs/` if needed).
+  - Appends environment name, absolute path, and Python/pip versions to `README.md` after tests complete.
+  - Ensures test subprocesses can import the `app` package (set PYTHONPATH appropriately).
+
+8) README.md
+- Update or create `README.md` that documents:
+  - Overview of generated files and their purpose.
+  - Step-by-step environment setup for Linux/macOS/Windows/Docker.
+  - How to run tests (`run_test.sh`, `run_test.bat`, and `auto_test.py`).
+  - Where to find test logs (`logs/test_run.log`).
+
+9) Constraints
+- Do NOT modify any source files in `app/` or other project source directories.
+- Only modify `requirements.txt` (and create new files listed above).
+- All changes must be reproducible on the detected Python version.
+
+10) Verification
+- After making changes, create the `.venv/`, install dependencies, run `auto_test.py`, and ensure tests complete successfully and `logs/test_run.log` is created.
+- If a dependency cannot be installed (no wheel or incompatible with Python), either pin to a compatible version or remove it if it's unused; record the decision in `report.json`.
+
+11) Deliverables (files to create/update)
+- `requirements.txt` (updated)
+- `requirements_backup.txt` (original)
+- `report.json`
+- `.venv/` with installed packages
+- `Dockerfile`, `setup.sh`, `run_test.sh`, `run_test.bat`
+- `auto_test.py`, `README.md`, `.gitignore`
+- `logs/test_run.log` (after running tests)
+
+Behavioral expectations
+- Prefer stable releases with prebuilt wheels for the detected Python version.
+- Keep edits minimal and conservative; only remove a package when it is unused or incompatible.
+- Be explicit in `report.json` for every change.
+- Do not leave TODOs or placeholders—implement fully working scripts.
+
+Output format
+- Final commit must leave the workspace with updated `requirements.txt`, `requirements_backup.txt`, `report.json`, `.venv/` populated, generated scripts, and passing tests with `logs/test_run.log`.
+
+End of prompt.
