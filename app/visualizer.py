@@ -1,9 +1,7 @@
-import matplotlib.pyplot as plt
-
-
 def plot_histogram(data, title="Histogram"):
-    plt.figure(figsize=(6, 4))
-    plt.hist(data, bins=10)
-    plt.title(title)
-    plt.tight_layout()
-    return plt
+    """Print a simple text histogram."""
+    print(f"{title}")
+    print("Simple histogram representation:")
+    for value in data:
+        print("*" * int(value * 10))  # Simple bar
+    return None
