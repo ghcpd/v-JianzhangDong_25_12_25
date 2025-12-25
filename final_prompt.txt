@@ -1,0 +1,78 @@
+Final Prompt: Dependency Maintenance & Environment Setup
+
+You are a dependency maintenance engineer. Your job is to inspect, secure, pin, and validate this project's Python dependencies and to produce reproducible environment and test artifacts.
+
+Required tasks (must follow precisely):
+
+1) Inspect the environment
+   - Detect the active Python and pip versions before making changes.
+   - Choose package versions compatible with the detected Python version (prefer stable releases and avoid deprecated/insecure versions).
+
+2) Backup and modify requirements
+   - Create an exact copy of `requirements.txt` named `requirements_backup.txt` before editing.
+   - Update `requirements.txt` so that every dependency is pinned to a specific, stable version compatible with the detected Python.
+   - Remove insecure, deprecated, or known-vulnerable versions. Ensure all constraints are mutually compatible.
+   - If a package has no pinned version, assign a pinned version.
+
+3) Produce `report.json`
+   - For every package that is changed or pinned, add an entry in `report.json` with fields: `id`, `package`, `original_version` (empty string if not pinned), `updated_version`, and `reason`.
+   - Follow this structure exactly (example):
+
+{
+  "issues": [
+    {
+      "id": 1,
+      "package": "requests",
+      "original_version": "2.22.0",
+      "updated_version": "2.31.0",
+      "reason": "Older version contains known security vulnerabilities."
+    }
+  ]
+}
+
+4) Generate environment replication scripts
+   - Add or update: `Dockerfile`, `setup.sh` (Linux/macOS), `run_test.sh` (Linux/macOS), and `run_test.bat` (Windows).
+   - Scripts should create/activate a fresh `.venv/`, install pinned dependencies, and be easy to run on the target platform.
+
+5) Virtual environment & .gitignore
+   - Delete any existing `.venv/` and create a new one under the project root.
+   - Install all dependencies from the updated `requirements.txt` into the new `.venv/`.
+   - Add or update `.gitignore` so `.venv/` and logs (e.g., `logs/`) are ignored.
+
+6) Tests automation and logging
+   - Implement `auto_test.py` that:
+     - Uses the project's `.venv/` Python to run every `*.py` in `tests/`.
+     - Writes human-readable test output and exit codes to `logs/test_run.log` (create `logs/` if missing).
+     - Appends the environment name, absolute path, and Python/pip versions to `README.md` after a successful run.
+     - Ensures tests run with the project root on `PYTHONPATH` so `app` imports succeed.
+
+7) README & final artifacts
+   - Create or update `README.md` describing all generated files, setup steps, how to run tests (both shell and batch), how to use `auto_test.py`, and how to inspect `logs/test_run.log`.
+
+8) Constraints & safeguards
+   - Do NOT modify any existing project source files or directories (e.g., anything in `app/` or `tests/`), only create or edit files listed above.
+   - Prefer packages that support the detected Python version (if Python 3.14 is detected, choose versions that state compatibility with 3.14).
+   - Avoid introducing transitive conflicts. If a conflict cannot be resolved without removing a package, report it in `report.json` with a clear reason.
+
+9) Acceptance criteria
+   - `requirements_backup.txt` exists and matches the original file.
+   - `requirements.txt` is fully pinned with stable versions and installs cleanly into a fresh `.venv/`.
+   - `report.json` lists every change with a reason.
+   - The `.venv/` is present and `pip list` shows the installed versions matching `requirements.txt`.
+   - `auto_test.py` runs and writes output to `logs/test_run.log` (showing test outputs and exit codes).
+   - `README.md` contains environment info appended by `auto_test.py` and includes setup/run instructions.
+   - No source files were modified.
+
+10) Optional (recommended) extra verification
+   - Run `pip-audit` or `safety` and include any security findings in `report.json` (under a separate `vulnerabilities` list), or output an explicit note if none found.
+   - Optionally open a new git branch (e.g., `dep-updates`) and produce a commit summary and a suggested PR description.
+
+Output expectations
+   - Print a short summary of created/modified files.
+   - Provide `report.json`, `requirements_backup.txt`, `requirements.txt` (new), `Dockerfile`, `setup.sh`, `run_test.sh`, `run_test.bat`, `.gitignore`, `auto_test.py`, `README.md`, and `logs/test_run.log` as artifacts.
+
+Notes
+   - Keep logs and reports concise and machine-parseable where appropriate.
+   - If uncertain about compatibility, choose conservative, well-supported releases and explain the rationale in `report.json`.
+
+End of prompt.
