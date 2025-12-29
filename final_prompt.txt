@@ -1,46 +1,17 @@
-Goal
+You are a dependency maintenance engineer. Your task is to analyze the provided requirements.txt, identify vulnerable, or conflicting dependencies, and generate a corrected version of the file.
 
-Produce a complete, automated, reproducible dependency-maintenance run for a small Python project. The agent/user executing this prompt must modify ONLY the repository's dependency files and may create new supporting artifacts — they must NOT change any existing project source files under the project (e.g., files in `app/`, `tests/`, etc.).
+Complete the following tasks:
+1. Create a backup of the original requirements.txt named requirements_backup.txt before making any modifications.
+2. Check the Python and pip versions. Based on this version information, directly modify requirements.txt with the corrected versions. Ensure that:
+   - No deprecated, vulnerable, or insecure versions remain.
+   - All dependency constraints are compatible with each other.
+   - Updated versions must be stable and compatible with the detected Python version.
+   - If a package has no pinned version, you must assign one.
 
-High-level objectives (succinct)
-
-1. Backup and fix `requirements.txt` so all packages are pinned to secure, stable versions compatible with the detected Python interpreter.
-2. Create a clean virtual environment at `.venv/`, install the pinned deps, freeze the resolved set back into `requirements.txt`.
-3. Produce an audit `report.json` describing every change (schema below).
-4. Add reproducible scripts and CI/dev tooling to build and run the project and its tests on Linux/macOS and Windows (Dockerfile, `setup.sh`, `run_test.sh`, `run_test.bat`).
-5. Create `auto_test.py` that uses the created `.venv/` to run all tests and writes a structured log to `logs/test_run.log`.
-6. Update `README.md` with environment metadata and add `.venv/` to `.gitignore`.
-7. Do not modify any existing source files — only dependency files may be changed and new files added.
-
-Preconditions (what your code/environment must check first)
-
-- Detect and record: `python --version` and `python -m pip --version`.
-- If Python is too old to satisfy modern secure releases (e.g., < 3.8), fail fast and explain the minimal required Python version.
-
-Mandatory steps (execute in order)
-
-1) Backup
-- Create an exact copy of the original `requirements.txt` named `requirements_backup.txt`.
-
-2) Inspect & Resolve
-- Read the original `requirements.txt` and identify:
-  - packages with insecure or vulnerable versions
-  - packages with no pinned version
-  - conflicting constraints
-- For every package with no pinned version, choose and pin a stable, recent release compatible with the detected Python.
-- Prefer latest stable releases that are known secure and compatible with the Python version. Avoid pre-releases/dev releases.
-- If a package cannot be upgraded because of an unavoidable conflict, document it in `report.json` and fail the run.
-
-3) Create clean environment
-- If `.venv/` exists, delete it and recreate a new venv at `.venv/`.
-- Upgrade pip/setuptools/wheel inside the venv.
-- Install the resolved/pinned requirements.
-- Run `pip check` and fail if there are unresolved dependency conflicts.
-- Optionally run `pip-audit` (if available) and include its summary in `report.json`.
-- After successful install, run `python -m pip freeze > requirements.txt` to freeze the exact resolved set.
-
-4) report.json (required schema)
-- Must be valid JSON and follow this shape:
+3. For each dependency issue you identify, generate a simplified report.json that specifies which package needs to be updated, what the original version was, and what the 
+updated version should be.
+If the package in requirements.txt has no pinned version, leave original_version as an empty string.
+The report.json must follow the structure below:
 {
   "issues": [
     {
@@ -49,87 +20,38 @@ Mandatory steps (execute in order)
       "original_version": "2.22.0",
       "updated_version": "2.31.0",
       "reason": "Older version contains known security vulnerabilities."
+    },
+    {
+      "id": 2,
+      "package": "flask",
+      "original_version": "",
+      "updated_version": "2.3.3",
+      "reason": "Version not specified; must be pinned to avoid unexpected upgrades."
     }
   ]
 }
-- Rules:
-  - If the original `requirements.txt` entry had no pinned version, set "original_version" to an empty string.
-  - Include one entry per package that was added/changed/identified as problematic.
-  - `id` should be sequential, starting at 1.
-  - Provide a short, factual `reason` for each change.
 
-5) Generated scripts & artifacts (required)
-- `requirements_backup.txt` — exact copy of the original requirements
-- `requirements.txt` — overwritten with the frozen, resolved set from the venv
-- `report.json` — audit summary (schema above)
-- `.gitignore` — ensure `.venv/` is listed
-- `Dockerfile` — build image that installs `requirements.txt` and runs `run_test.sh` (exit non-zero on test failures)
-- `setup.sh` — creates and populates `.venv/` on Linux/macOS
-- `run_test.sh` — runs the test suite using `.venv/` on Linux/macOS
-- `run_test.bat` — runs the test suite using `.venv/` on Windows
-- `auto_test.py` — uses the `.venv/` Python to execute every `tests/*.py`, writes `logs/test_run.log`, appends env metadata to `README.md`, and returns non-zero on any test failure
-- `logs/test_run.log` — produced by `auto_test.py` (include stdout/stderr and pass/fail summary)
+4. Generate environment replication scripts for each major platform, including:
+   - Dockerfile, and setup.sh (for Linux/macOS)
+   - run_test.sh (Linux/macOS), run_test.bat (Windows)
 
-6) Behavior & verification (acceptance criteria)
-- The original `requirements_backup.txt` must be present and identical to original `requirements.txt` content.
-- `requirements.txt` must be fully pinned (no loose/unpinned packages) and reflect the exact versions in the working `.venv/` (frozen via `pip freeze`).
-- `.venv/` must be newly created (deleted if existed) and contain the installed packages.
-- `pip check` should report no conflicts.
-- `auto_test.py` must successfully execute all `tests/*.py` using `.venv/` and write `logs/test_run.log` with a clear pass/fail count.
-- `README.md` must be appended with: environment name, absolute repository path, Python version, and pip version used for the run.
-- `report.json` must list every package that was changed or that had no pinned version originally.
-- No files under `app/`, `tests/`, or other source directories may be modified.
+5. Do not modify any existing project source files or directories. Only the requirements files (requirements.txt or requirements_backup.txt) may be modified. Newly generated files (e.g., report.json, auto_test.py, logs/) may be created or updated as needed.
 
-7) Error handling & edge-cases
-- If any test fails, tests must still be logged; `auto_test.py` should exit non-zero and include failure details and traceback snippets in `logs/test_run.log`.
-- If package resolution fails due to conflicting constraints, write the conflict details to `report.json` and do NOT overwrite `requirements_backup.txt`.
-- If the detected Python version is incompatible with any updated packages, include a clear remediation message in `report.json`.
+6. Based on the modified requirements.txt create a clean virtual environment under .venv/. Ensure that:
+   - Do not reuse any existing environment. 
+   - If .venv/ already exists, delete and recreate it.
+   - Install all dependencies into .venv/.
+   - Generate or update .gitignore so that .venv/ will not be uploaded to Git.
 
-8) Example quick verification commands (for humans)
-- Windows PowerShell
-  - .venv\Scripts\python --version
-  - .venv\Scripts\python -m pip --version
-  - .venv\Scripts\python auto_test.py
-  - type logs\test_run.log
-- Linux/macOS
-  - source .venv/bin/activate; python --version; python -m pip --version; python auto_test.py; tail -n 200 logs/test_run.log
-- Docker
-  - docker build -t repo-test . && docker run --rm repo-test
+7. Generate an auto_test.py file that meets the following requirements:
+   - Use the environment created under the .venv/ directory to execute all test scripts inside the tests/ folder.
+   - Write all test results to logs/test_run.log (create the logs/ directory if it doesn't exist).
+   - Append the environment name, absolute path, and Python/pip versions to README.md after creation.
 
-9) Deliverables (files that must exist when the run completes)
-- requirements_backup.txt (original)
-- requirements.txt (frozen, pinned)
-- report.json
-- .gitignore (contains `.venv/`)
-- Dockerfile, setup.sh, run_test.sh, run_test.bat
-- auto_test.py
-- logs/test_run.log (populated)
-- README.md (updated with environment metadata)
 
-10) Security & maintainability expectations
-- Prefer latest stable (non-prerelease) versions that have no known critical CVEs for direct deps.
-- Avoid unpinned dependencies; pin exact versions in `requirements.txt`.
-- Keep changes minimal and well-documented in `report.json`.
-
-Exit / success criteria
-
-- Return success only if:
-  - `.venv/` was created and packages installed without conflicts
-  - `requirements.txt` was frozen and replaced
-  - All tests executed by `auto_test.py` either passed or their failures were logged and reported
-  - `report.json` and `requirements_backup.txt` were produced
-
-Notes for implementers
-
-- This prompt is intended to be deterministic and reproducible: prefer creating a venv and freezing real installed versions rather than guessing version numbers.
-- Do not change source code. Only add new files or change dependency-related files.
-
-Minimal `report.json` example
-
-{
-  "issues": [
-    { "id": 1, "package": "flask", "original_version": "", "updated_version": "2.3.5", "reason": "Unpinned — pin to stable release for reproducibility" }
-  ]
-}
-
-End of prompt
+8. Generate a README.md file that provides:
+   - An overview of all generated files and their purpose.
+   - Step-by-step instructions to set up the environment.
+   - How to run the test scripts (run_test.sh for Linux/macOS, run_test.bat for Windows).
+   - How to use auto_test.py for automatic environment detection and testing.
+   - How to check logs in logs/test_run.log.
