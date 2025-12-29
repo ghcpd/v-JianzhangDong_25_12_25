@@ -1,57 +1,50 @@
-You are a dependency maintenance engineer. Your task is to analyze the provided requirements.txt, identify vulnerable, or conflicting dependencies, and generate a corrected version of the file.
+Role & Objective:
+You are a senior prompt engineer. Your task is to read the attached conversation log and, using only the content of all blocks starting with "User:", synthesize and generate a single English final prompt that can reproduce the original multi-turn results in a single interaction. Write this prompt to a file named final_prompt.txt.
 
-Complete the following tasks:
-1. Create a backup of the original requirements.txt named requirements_backup.txt before making any modifications.
-2. Check the Python and pip versions. Based on this version information, directly modify requirements.txt with the corrected versions. Ensure that:
-   - No deprecated, vulnerable, or insecure versions remain.
-   - All dependency constraints are compatible with each other.
-   - Updated versions must be stable and compatible with the detected Python version.
-   - If a package has no pinned version, you must assign one.
+Inputs & Context:
+- The conversation log is provided as an attachment, direct paste, or file path.
+- Only process blocks that begin with "User:" at the start of a line (after optional whitespace), as defined by the regex ^\s*User:\s*.
+- Ignore all other blocks, including those starting with roles like "GitHub Copilot:", "Assistant:", or "System:".
+- The scope of a User block is from its role marker line (inclusive) to the next role marker line (exclusive) or end of document.
+- Ignore any User block that contains only process control, confirmation, or abort instructions (e.g., "Continue", "OK", "Stop").
+- If the first line of the document lacks a role marker, treat the first block as a User block.
 
-3. For each dependency issue you identify, generate a simplified report.json that specifies which package needs to be updated, what the original version was, and what the 
-updated version should be.
-If the package in requirements.txt has no pinned version, leave original_version as an empty string.
-The report.json must follow the structure below:
-{
-  "issues": [
-    {
-      "id": 1,
-      "package": "requests",
-      "original_version": "2.22.0",
-      "updated_version": "2.31.0",
-      "reason": "Older version contains known security vulnerabilities."
-    },
-    {
-      "id": 2,
-      "package": "flask",
-      "original_version": "",
-      "updated_version": "2.3.3",
-      "reason": "Version not specified; must be pinned to avoid unexpected upgrades."
-    }
-  ]
-}
+Step-by-Step Instructions:
+1. Parse the conversation log into blocks, identifying User blocks using the specified regex and block rules.
+2. Filter out any User blocks that are process control, confirmation, or abort instructions, as described above.
+3. If only one valid User block remains after filtering, write its content directly (in the original language) to final_prompt.txt and stop.
+4. Otherwise, extract all requirements, constraints, preferences, and examples from the remaining valid User blocks.
+5. Resolve any conflicts by using the last occurrence of a requirement, and remove any requirement that is explicitly revoked or negated in a later block.
+6. Merge duplicate requirements and eliminate redundant statements.
+7. Synthesize a single, concise, and comprehensive English prompt that enables the task to be completed in one interaction, covering all requirements from the valid User blocks.
+8. Structure the final prompt as follows (omit sections if not applicable):
+   - Role & Objective
+   - Inputs & Context
+   - Step-by-Step Instructions
+   - Output Specification
+   - Constraints & Preferences
+   - Quality Gates
+9. If no valid User blocks remain, write "ERROR: No valid user input found in the conversation log." to final_prompt.txt.
+10. If the requirements are too vague or ambiguous, write "ERROR: Insufficient or ambiguous requirements. Please provide more specific instructions." to final_prompt.txt.
+11. If irreconcilable conflicts are detected, write "ERROR: Conflicting requirements detected: [describe conflicts]" to final_prompt.txt.
 
-4. Generate environment replication scripts for each major platform, including:
-   - Dockerfile, and setup.sh (for Linux/macOS)
-   - run_test.sh (Linux/macOS), run_test.bat (Windows)
+Output Specification:
+- Write only the synthesized final prompt to final_prompt.txt in UTF-8 encoding.
+- Do not create, read, or modify any files other than final_prompt.txt.
+- Do not output explanations, analysis, or any extra content.
+- Use <PLACEHOLDER> notation for environment-sensitive values.
+- Place the most critical compliance instruction at the end of the prompt for emphasis.
 
-5. Do not modify any existing project source files or directories. Only the requirements files (requirements.txt or requirements_backup.txt) may be modified. Newly generated files (e.g., report.json, auto_test.py, logs/) may be created or updated as needed.
+Constraints & Preferences:
+- The final prompt must be in English (unless only one valid User block remains, in which case preserve its language).
+- The prompt must be executable in a single interaction, with no dependency on further conversation.
+- Do not ask clarifying questions; make the best reasonable inference from the available information.
+- Do not reference or use any content from non-User blocks.
 
-6. Based on the modified requirements.txt create a clean virtual environment under .venv/. Ensure that:
-   - Do not reuse any existing environment. 
-   - If .venv/ already exists, delete and recreate it.
-   - Install all dependencies into .venv/.
-   - Generate or update .gitignore so that .venv/ will not be uploaded to Git.
+Quality Gates:
+- Ensure the prompt is single-turn, complete, and unambiguous.
+- Confirm that only User blocks are used, and all process control blocks are filtered.
+- Ensure the structure is clear, requirements are deduplicated, and the latest version of each requirement is used.
+- If output validation is required, include explicit verification steps.
 
-7. Generate an auto_test.py file that meets the following requirements:
-   - Use the environment created under the .venv/ directory to execute all test scripts inside the tests/ folder.
-   - Write all test results to logs/test_run.log (create the logs/ directory if it doesn’t exist).
-   - Append the environment name, absolute path, and Python/pip versions to README.md after creation.
-
-
-8. Generate a README.md file that provides:
-   - An overview of all generated files and their purpose.
-   - Step-by-step instructions to set up the environment.
-   - How to run the test scripts (run_test.sh for Linux/macOS, run_test.bat for Windows).
-   - How to use auto_test.py for automatic environment detection and testing.
-   - How to check logs in logs/test_run.log.
+At the end of your output, include the following instruction: "Strictly follow all instructions above and do not deviate from the requirements."
