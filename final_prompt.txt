@@ -1,23 +1,17 @@
-Final Prompt: Dependency Maintenance & Environment Setup
+You are a dependency maintenance engineer. Your task is to analyze the provided requirements.txt, identify vulnerable, or conflicting dependencies, and generate a corrected version of the file.
 
-You are a dependency maintenance engineer. Your job is to inspect, secure, pin, and validate this project's Python dependencies and to produce reproducible environment and test artifacts.
+Complete the following tasks:
+1. Create a backup of the original requirements.txt named requirements_backup.txt before making any modifications.
+2. Check the Python and pip versions. Based on this version information, directly modify requirements.txt with the corrected versions. Ensure that:
+   - No deprecated, vulnerable, or insecure versions remain.
+   - All dependency constraints are compatible with each other.
+   - Updated versions must be stable and compatible with the detected Python version.
+   - If a package has no pinned version, you must assign one.
 
-Required tasks (must follow precisely):
-
-1) Inspect the environment
-   - Detect the active Python and pip versions before making changes.
-   - Choose package versions compatible with the detected Python version (prefer stable releases and avoid deprecated/insecure versions).
-
-2) Backup and modify requirements
-   - Create an exact copy of `requirements.txt` named `requirements_backup.txt` before editing.
-   - Update `requirements.txt` so that every dependency is pinned to a specific, stable version compatible with the detected Python.
-   - Remove insecure, deprecated, or known-vulnerable versions. Ensure all constraints are mutually compatible.
-   - If a package has no pinned version, assign a pinned version.
-
-3) Produce `report.json`
-   - For every package that is changed or pinned, add an entry in `report.json` with fields: `id`, `package`, `original_version` (empty string if not pinned), `updated_version`, and `reason`.
-   - Follow this structure exactly (example):
-
+3. For each dependency issue you identify, generate a simplified report.json that specifies which package needs to be updated, what the original version was, and what the 
+updated version should be.
+If the package in requirements.txt has no pinned version, leave original_version as an empty string.
+The report.json must follow the structure below:
 {
   "issues": [
     {
@@ -26,53 +20,38 @@ Required tasks (must follow precisely):
       "original_version": "2.22.0",
       "updated_version": "2.31.0",
       "reason": "Older version contains known security vulnerabilities."
+    },
+    {
+      "id": 2,
+      "package": "flask",
+      "original_version": "",
+      "updated_version": "2.3.3",
+      "reason": "Version not specified; must be pinned to avoid unexpected upgrades."
     }
   ]
 }
 
-4) Generate environment replication scripts
-   - Add or update: `Dockerfile`, `setup.sh` (Linux/macOS), `run_test.sh` (Linux/macOS), and `run_test.bat` (Windows).
-   - Scripts should create/activate a fresh `.venv/`, install pinned dependencies, and be easy to run on the target platform.
+4. Generate environment replication scripts for each major platform, including:
+   - Dockerfile, and setup.sh (for Linux/macOS)
+   - run_test.sh (Linux/macOS), run_test.bat (Windows)
 
-5) Virtual environment & .gitignore
-   - Delete any existing `.venv/` and create a new one under the project root.
-   - Install all dependencies from the updated `requirements.txt` into the new `.venv/`.
-   - Add or update `.gitignore` so `.venv/` and logs (e.g., `logs/`) are ignored.
+5. Do not modify any existing project source files or directories. Only the requirements files (requirements.txt or requirements_backup.txt) may be modified. Newly generated files (e.g., report.json, auto_test.py, logs/) may be created or updated as needed.
 
-6) Tests automation and logging
-   - Implement `auto_test.py` that:
-     - Uses the project's `.venv/` Python to run every `*.py` in `tests/`.
-     - Writes human-readable test output and exit codes to `logs/test_run.log` (create `logs/` if missing).
-     - Appends the environment name, absolute path, and Python/pip versions to `README.md` after a successful run.
-     - Ensures tests run with the project root on `PYTHONPATH` so `app` imports succeed.
+6. Based on the modified requirements.txt create a clean virtual environment under .venv/. Ensure that:
+   - Do not reuse any existing environment. 
+   - If .venv/ already exists, delete and recreate it.
+   - Install all dependencies into .venv/.
+   - Generate or update .gitignore so that .venv/ will not be uploaded to Git.
 
-7) README & final artifacts
-   - Create or update `README.md` describing all generated files, setup steps, how to run tests (both shell and batch), how to use `auto_test.py`, and how to inspect `logs/test_run.log`.
+7. Generate an auto_test.py file that meets the following requirements:
+   - Use the environment created under the .venv/ directory to execute all test scripts inside the tests/ folder.
+   - Write all test results to logs/test_run.log (create the logs/ directory if it doesn't exist).
+   - Append the environment name, absolute path, and Python/pip versions to README.md after creation.
 
-8) Constraints & safeguards
-   - Do NOT modify any existing project source files or directories (e.g., anything in `app/` or `tests/`), only create or edit files listed above.
-   - Prefer packages that support the detected Python version (if Python 3.14 is detected, choose versions that state compatibility with 3.14).
-   - Avoid introducing transitive conflicts. If a conflict cannot be resolved without removing a package, report it in `report.json` with a clear reason.
 
-9) Acceptance criteria
-   - `requirements_backup.txt` exists and matches the original file.
-   - `requirements.txt` is fully pinned with stable versions and installs cleanly into a fresh `.venv/`.
-   - `report.json` lists every change with a reason.
-   - The `.venv/` is present and `pip list` shows the installed versions matching `requirements.txt`.
-   - `auto_test.py` runs and writes output to `logs/test_run.log` (showing test outputs and exit codes).
-   - `README.md` contains environment info appended by `auto_test.py` and includes setup/run instructions.
-   - No source files were modified.
-
-10) Optional (recommended) extra verification
-   - Run `pip-audit` or `safety` and include any security findings in `report.json` (under a separate `vulnerabilities` list), or output an explicit note if none found.
-   - Optionally open a new git branch (e.g., `dep-updates`) and produce a commit summary and a suggested PR description.
-
-Output expectations
-   - Print a short summary of created/modified files.
-   - Provide `report.json`, `requirements_backup.txt`, `requirements.txt` (new), `Dockerfile`, `setup.sh`, `run_test.sh`, `run_test.bat`, `.gitignore`, `auto_test.py`, `README.md`, and `logs/test_run.log` as artifacts.
-
-Notes
-   - Keep logs and reports concise and machine-parseable where appropriate.
-   - If uncertain about compatibility, choose conservative, well-supported releases and explain the rationale in `report.json`.
-
-End of prompt.
+8. Generate a README.md file that provides:
+   - An overview of all generated files and their purpose.
+   - Step-by-step instructions to set up the environment.
+   - How to run the test scripts (run_test.sh for Linux/macOS, run_test.bat for Windows).
+   - How to use auto_test.py for automatic environment detection and testing.
+   - How to check logs in logs/test_run.log.
