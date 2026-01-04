@@ -1,0 +1,92 @@
+You are a dependency maintenance engineer. Your task is to analyze the provided requirements.txt, identify vulnerable or conflicting dependencies, generate a corrected version of the file, and ensure all tests pass successfully.
+
+Complete the following tasks:
+
+1. Create a backup of the original requirements.txt named requirements_backup.txt before making any modifications.
+
+2. Check the Python and pip versions. Based on this version information, directly modify requirements.txt with the corrected versions. Ensure that:
+   - No deprecated, vulnerable, or insecure versions remain.
+   - All dependency constraints are compatible with each other.
+   - Updated versions must be stable and compatible with the detected Python version.
+   - If a package has no pinned version, you must assign one.
+   - Use versions that have pre-built wheels available for the detected Python version to avoid compilation issues.
+
+3. For each dependency issue you identify, generate a simplified report.json that specifies which package needs to be updated, what the original version was, and what the updated version should be.
+   If the package in requirements.txt has no pinned version, leave original_version as an empty string.
+   The report.json must follow the structure below:
+   {
+     "issues": [
+       {
+         "id": 1,
+         "package": "requests",
+         "original_version": "2.22.0",
+         "updated_version": "2.31.0",
+         "reason": "Older version contains known security vulnerabilities."
+       },
+       {
+         "id": 2,
+         "package": "flask",
+         "original_version": "",
+         "updated_version": "2.3.3",
+         "reason": "Version not specified; must be pinned to avoid unexpected upgrades."
+       }
+     ]
+   }
+
+4. Generate environment replication scripts for each major platform, including:
+   - Dockerfile, and setup.sh (for Linux/macOS)
+   - run_test.sh (Linux/macOS), run_test.bat (Windows)
+
+5. Do not modify any existing project source files or directories. Only the requirements files (requirements.txt or requirements_backup.txt) may be modified. Newly generated files (e.g., report.json, auto_test.py, logs/) may be created or updated as needed.
+
+6. Based on the modified requirements.txt create a clean virtual environment under .venv/. Ensure that:
+   - Do not reuse any existing environment.
+   - If .venv/ already exists, delete and recreate it.
+   - Install all dependencies into .venv/.
+   - Generate or update .gitignore so that .venv/ will not be uploaded to Git.
+
+7. Generate an auto_test.py file that meets the following requirements:
+   - Use the environment created under the .venv/ directory to execute all test scripts inside the tests/ folder.
+   - CRITICAL: Set the PYTHONPATH environment variable to include the project root directory before running tests to ensure proper module imports (e.g., so that 'import app' works correctly).
+   - Handle UTF-8 encoding properly when reading and writing files.
+   - Write all test results to logs/test_run.log (create the logs/ directory if it doesn't exist).
+   - Append the environment name, absolute path, and Python/pip versions to README.md after creation.
+   - Ensure all tests can successfully import project modules and pass without ModuleNotFoundError.
+
+8. Generate a README.md file that provides:
+   - An overview of all generated files and their purpose.
+   - Step-by-step instructions to set up the environment.
+   - How to run the test scripts (run_test.sh for Linux/macOS, run_test.bat for Windows).
+   - How to use auto_test.py for automatic environment detection and testing.
+   - How to check logs in logs/test_run.log.
+
+9. After completing all setup steps, execute auto_test.py to verify that all tests pass successfully. If any tests fail due to import errors or module path issues, fix the auto_test.py script to properly configure the Python path and re-run until all tests pass.
+
+10. Generate a COMPLETION_REPORT.md file documenting:
+    - Summary of all completed tasks
+    - List of all generated files with descriptions
+    - Dependency updates with security vulnerability details
+    - Test execution results showing 100% pass rate
+    - Environment configuration details
+
+OUTPUT REQUIREMENTS:
+- All files must be created in the current working directory
+- All tests must pass with 100% success rate
+- Test log must show successful execution of all test cases
+- No ModuleNotFoundError or import errors should remain
+- Virtual environment must be fully functional with all dependencies installed
+
+VALIDATION CHECKLIST:
+✓ requirements_backup.txt created
+✓ requirements.txt updated with secure, compatible versions
+✓ report.json generated with detailed issue tracking
+✓ Dockerfile, setup.sh, run_test.sh, run_test.bat created
+✓ .venv/ created and all dependencies installed successfully
+✓ auto_test.py created with proper PYTHONPATH configuration
+✓ README.md generated with comprehensive documentation
+✓ .gitignore updated to exclude .venv/
+✓ All tests executed successfully (100% pass rate)
+✓ logs/test_run.log contains successful test results
+✓ COMPLETION_REPORT.md documenting all completed work
+
+CRITICAL: The auto_test.py script must properly configure the Python path by setting the PYTHONPATH environment variable to include the project root directory BEFORE executing any test files. This ensures that test scripts can successfully import the 'app' module and other project modules. Verify that all tests pass before considering the task complete.

@@ -1,0 +1,74 @@
+{
+  "issues": [
+    {
+      "id": 1,
+      "package": "numpy",
+      "original_version": "1.24.0",
+      "updated_version": "2.4.0",
+      "reason": "Older version lacks security patches and Python 3.14 support. Updated to 2.4.0 with pre-built wheels."
+    },
+    {
+      "id": 2,
+      "package": "pandas",
+      "original_version": "1.5.0",
+      "updated_version": "2.3.3",
+      "reason": "Version 1.5.0 is EOL and contains multiple security vulnerabilities. Updated to stable 2.3.3 with Python 3.14 support."
+    },
+    {
+      "id": 3,
+      "package": "matplotlib",
+      "original_version": "3.5.0",
+      "updated_version": "3.10.8",
+      "reason": "Updated to latest stable version with improved compatibility and security patches."
+    },
+    {
+      "id": 4,
+      "package": "requests",
+      "original_version": "2.25.0",
+      "updated_version": "2.32.5",
+      "reason": "Version 2.25.0 contains known security vulnerabilities (CVE-2023-32681). Updated to latest secure version."
+    },
+    {
+      "id": 5,
+      "package": "pyyaml",
+      "original_version": "5.3.1",
+      "updated_version": "6.0.3",
+      "reason": "Version 5.3.1 has known YAML deserialization vulnerabilities. Updated to version 6.0.3 with security fixes."
+    },
+    {
+      "id": 6,
+      "package": "scipy",
+      "original_version": "1.9.0",
+      "updated_version": "1.16.3",
+      "reason": "Updated to latest stable version compatible with numpy 2.4.0 and Python 3.14."
+    },
+    {
+      "id": 7,
+      "package": "regex",
+      "original_version": "2021.4.4",
+      "updated_version": "2025.11.3",
+      "reason": "Version 2021.4.4 is 4+ years old. Updated to latest version with bug fixes and security improvements."
+    },
+    {
+      "id": 8,
+      "package": "tqdm",
+      "original_version": "4.32.0",
+      "updated_version": "4.67.1",
+      "reason": "Version 4.32.0 is outdated. Updated to latest stable version with improvements and bug fixes."
+    },
+    {
+      "id": 9,
+      "package": "lxml",
+      "original_version": "4.6.1",
+      "updated_version": "6.0.2",
+      "reason": "Version 4.6.1 contains known XML vulnerabilities. Updated to latest version with security patches."
+    },
+    {
+      "id": 10,
+      "package": "typing_extensions",
+      "original_version": "3.7.4",
+      "updated_version": "4.15.0",
+      "reason": "Version 3.7.4 is severely outdated. Updated to latest version for Python 3.14 compatibility."
+    }
+  ]
+}
