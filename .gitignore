@@ -1,0 +1,11 @@
+.venv/
+# Bytecode
+__pycache__/
+*.py[cod]
+# Test/logs
+logs/
+pytest.ini
+.pytest_cache/
+# IDE
+.vscode/
+*.swp
